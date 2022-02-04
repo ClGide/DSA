@@ -169,3 +169,7 @@ def tweaked_binary_search(cards: list, queried_number: int, checker: int = None)
 
 
 tester(tweaked_binary_search)
+
+
+def new_func():
+    pass
