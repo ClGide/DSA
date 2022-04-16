@@ -1,3 +1,5 @@
+""" problem nr1 """
+
 """
 If the string is a valid variable name, return "good variable name". Otherwise, return
 "bad variable name" + first character making it a bad variable name.
@@ -33,10 +35,12 @@ tests = [a, b, c, d, e, f, g, h, i]
 for test in tests:
     result = func(test)
     print(result)
+
+
+""" problem nr2 """
     
     
-    
- from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict
 
 """ I need to solve the following algebraic equations"""
 
@@ -82,3 +86,75 @@ def algebraic_computation(num: str, constants: List[Tuple[str, int]]) -> int:
         else:
             raise ValueError("the values seems to be badly formatted.")
     return n[0]
+
+
+""" problem nr3 """
+
+
+test_1 = "AABCC"
+test_2 = "In some ways, programming is like painting. You start with" \
+         " a blank canvas and certain basic raw materials. You use a" \
+         " combination of science, art, and craft to determine what to do with them."
+
+"""
+sol_test_1: 
+* *
+***
+ABC
+
+sol_test_2:
+*
+*
+*
+*
+*
+*       *        *
+*       *        *
+*       *   *    *
+*       *   *    *
+*   *   *   *    *
+*   *   *   **   *
+*   *   *   ** ***
+*   *   *   ** ***
+* * *   *  *** ***
+* * *   *  *** ***
+* * *   *  *** ***  *
+* ***  **  *** ***  *
+***** *** **** **** **
+******************* **
+**********************
+ABCDEFGHIKLMNOPRSTUVWY
+"""
+
+
+def painting(words:str) -> str:
+    ch_indexes = {}
+    for idx, ch in enumerate(words):
+        if ch not in ch_indexes:
+            ch_indexes[ch] = 1
+        else:
+            ch_indexes[ch] += 1
+
+    ch_upper_indexes = {
+        key.upper():value 
+        for key, value 
+        in ch_indexes.items() if key.isalpha()
+    }
+    ch_upper_indexes_sorted = {
+        key:value 
+        for key, value 
+        in zip(sorted(list(ch_upper_indexes.keys())), ch_upper_indexes.values())
+    }
+
+    r = ""
+    for height in range(max(ch_upper_indexes_sorted.values()), 0, -1):
+        for letter in ch_upper_indexes_sorted.keys():
+                if ch_upper_indexes_sorted[letter] >= height:
+                    r += "*"
+                else:
+                    r += " "
+                if letter == sorted(ch_upper_indexes_sorted.keys())[-1]:
+                    r += "\n"
+    r += "".join(ch_upper_indexes_sorted.keys())
+    
+    return r 
