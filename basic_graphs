@@ -1,4 +1,6 @@
 # undirected
+from typing import Tuple
+
 adjacency_list_1 = {
     "A": ["B"],
     "B": ["A", "C", "D"],
@@ -290,21 +292,31 @@ four_islands = [
 ]
 
 
+# my solution
 def get_neighbors(position: tuple[int, int], matrix: list[list[str]]) -> list[tuple[int, int]]:
     """Return a list of existent neighbors on land."""
     max = len(matrix) - 1
     row, col = position
+    # all four possible neighbors.
     neighbors = [(row+1, col), (row, col+1), (row-1, col), (row, col-1)]
     # let's filter the non-existent neighbors
-    for r, c in neighbors:
-        if r > max or c > max or r < 0 or c < 0:
-            neighbors.remove((r, c))
+    neighbors_on_land = []
+    for p in neighbors:
+        r, c = p
+        if r > max or c > max:
+            continue
+        elif r < 0 or c < 0:
+            continue
         elif matrix[r][c] != "L":
-            neighbors.remove((r, c))
-    return neighbors
+            continue
+        else:
+            neighbors_on_land.append(p)
+    print(f"in get_neighbors, neighbors: {neighbors_on_land}")
+    return neighbors_on_land
 
 
-def explore_island(start: tuple[int, int], matrix: list[list[str]], visited):
+def explore_island(start: tuple[int, int], matrix: list[list[str]]):
+    visited: list[tuple[int, int]] = []
     stack = [start]
     while stack:
         current = stack.pop()
@@ -312,37 +324,89 @@ def explore_island(start: tuple[int, int], matrix: list[list[str]], visited):
             visited.append(current)
             neighbors = get_neighbors(current, matrix)
             stack.extend(neighbors)
+        print(f"explore_island, stack:{stack}")
     return visited
 
 
-def count_island(matrix: list[list[str]]):
+def count_islands_trial(matrix: list[list[str]]):
     """Two pieces of lands are part of the same island if and only if
     piece A is either at the top, the bottom, the left or the right
-    of piece B. In other words, the reason why piece A (x, y) is a neighbor
+    of piece B. The reason why piece A (x, y) is a neighbor
     of piece B is NEVER that piece B is at (x+1, y+1) i.e positioned
     diagonally.
-    The main idea is while going to the matrice, start traversals onlu
+    The main idea is while going through the matrix, start traversals onlu
     when we are on unvisited land. Each time we start a traversal,
     we should increment the count. We should mark those pieces of lands
-    as visited so we do not count the same island multiple times. """
+    as visited so we do not count the same island multiple times."""
     count = 0
     visited: list[tuple[int, int]] = []
-    row_nr = 0
+    row_nr = -1    # the first position in matrix is (0,0)
     for row in matrix:
         row_nr += 1
-        col_nr = 0
+        print(f"row number: {row_nr}")
+        col_nr = -1    # the first position in matrix is (0,0)
         for piece_of_earth in row:
             col_nr += 1
+            print(f"col number: {col_nr}")
             if piece_of_earth == "L":
-                piece_of_earth_position = row_nr, col_nr
+                piece_of_earth_position: tuple[int, int] = row_nr, col_nr
                 if piece_of_earth_position not in visited:
                     count += 1
-                    visited_updated = explore_island(piece_of_earth_position, matrix, visited)
-                    visited = visited_updated
+                    visited_updated = explore_island(piece_of_earth_position, matrix)
+                    visited.extend(visited_updated)
     print(count)
 
 
-count_island(four_islands)
+#count_island(four_islands)
+
+""" Time and space complexity of island_count shouldn't be superior to O(rc)."""
+
+
+# cleaner solution
+def count_islands_clean(matrix: list[list[str]]):
+    """The main improvements compared to my solution is that all checks are done
+     in a central place. In my solution, the checking is done across 3 functions."""
+    count = 0
+    visited = []
+    row_nr = -1
+    for row in matrix:
+        print(visited)
+        row_nr += 1
+        col_nr = -1
+        for col in row:
+            col_nr += 1
+            if explore(matrix, row_nr, col_nr, visited):
+                count += 1
+    print(count)
+
+
+def explore(matrix: list[list[str]],
+            row_nr: int,
+            col_nr: int,
+            visited: list[tuple[int, int]]) -> bool:
+    boundary = len(matrix) - 1
+
+    # all checks done in a single place.
+    if row_nr > boundary or col_nr > boundary:
+        return False
+    if row_nr < 0 or col_nr < 0:
+        return False
+    if (row_nr, col_nr) in visited:
+        return False
+    if matrix[row_nr][col_nr] == "W":
+        return False
+
+    visited.append((row_nr, col_nr))
+
+    explore(matrix, row_nr, col_nr+1, visited)
+    explore(matrix, row_nr, col_nr-1, visited)
+    explore(matrix, row_nr+1, col_nr, visited)
+    explore(matrix, row_nr-1, col_nr, visited)
+
+    return True
+
+
+#count_islands_clean(four_islands)
 
 
 # coloring problem
