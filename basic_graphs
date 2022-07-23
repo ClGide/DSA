@@ -384,7 +384,7 @@ def explore(matrix: list[list[str]],
             row_nr: int,
             col_nr: int,
             visited: list[tuple[int, int]]) -> bool:
-    boundary = len(matrix) - 1
+    boundary = len(matrix) - 1  # we assume matrix is square
 
     # all checks done in a single place.
     if row_nr > boundary or col_nr > boundary:
@@ -407,6 +407,90 @@ def explore(matrix: list[list[str]],
 
 
 #count_islands_clean(four_islands)
+
+
+# min island
+
+def min_island(matrix: list[list[str]]) -> int:
+    """We have a matrix. The efficiency constraint is that all checks need
+    to happen in a single place. The strategy is to start counting only if
+    the matrix is on land. I will use a BFS and a get_neighbor. However, no
+    checks are going to be done in the get_neighbor. To measure the area we
+    will subtract the len of visited before the bfs_traversal, and after
+    the traversal. Given that the same piece of land cannot be in two separate
+    islands, we don't have to worry about forgetting to count one piece of land."""
+
+    visited: list[tuple[int, int]] = []
+    # we suppose that the matrix is square, otherwise we would have to multiply length
+    # by width to get the biggest land possible.
+    current_min_island = len(matrix)**2
+    row_nr = -1
+    for row in matrix:
+        row_nr += 1
+        col_nr = -1
+        for col in row:
+            col_nr += 1
+            area = measure_area(matrix, row_nr, col_nr, visited)
+            if area != -1 and area < current_min_island:
+                current_min_island = area
+
+
+def measure_area(matrix: list[list[str]],
+                 row_nr: int,
+                 col_nr: int,
+                 visited: list[tuple[int, int]]) -> int:
+
+    before = len(visited)
+
+    if not existent_pos(row_nr, col_nr, matrix, visited):
+        return -1
+    pos = row_nr, col_nr
+    queue: list[tuple[int, int]] = [pos]
+
+    while queue:
+        pos = queue.pop(0)
+        for possible_near_land in get_possible_near_land(*pos):
+            near_row_nr, near_col_nr = possible_near_land
+            if not existent_pos(near_row_nr, near_col_nr, matrix, visited):
+                continue
+            queue.append((near_col_nr, near_col_nr))
+        visited.append(pos)
+    possible_min_island = len(visited) - before
+    return possible_min_island
+
+
+def get_possible_near_land(row_nr, col_nr):
+    return [(row_nr, col_nr + 1),
+            (row_nr, col_nr - 1),
+            (row_nr+1, col_nr),
+            (row_nr-1, col_nr)]
+
+
+def existent_pos(row_nr: int, col_nr: int,
+                 matrix: list[list[str]],
+                 visited: list[tuple[int, int]]) -> bool:
+    pos = row_nr, col_nr
+    boundaries = range(len(matrix))
+    if pos in visited:
+        return False
+    elif row_nr not in boundaries or col_nr not in boundaries:
+        return False
+    elif matrix[row_nr][col_nr] != "L":
+        return False
+    return True
+
+
+three_islands = [
+    ["L", "L", "W", "W", "L", "L"],
+    ["L", "L", "W", "W", "L", "W"],
+    ["L", "W", "W", "W", "W", "W"],
+    ["W", "L", "W", "W", "W", "W"],
+    ["W", "L", "W", "W", "W", "W"],
+    ["W", "L", "L", "L", "L", "W"]
+]
+
+r = min_island(three_islands)   # should return 3
+print(r)
 
 
 # coloring problem
