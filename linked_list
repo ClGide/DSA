@@ -1,0 +1,77 @@
+"""
+First node in the linked list is the head. The last node in the linked list
+is the tail. For more robust algo solving, the tail generally points to None.
+A nice property about a linked list is that it is an inherently ordered DS.
+We can go from head to tail by following each consecutive node next node.
+Each node also has a position.
+
+An array is also an ordered DS. Instead of nodes there are elements. The main
+difference is that an element doesn't point to its next index. Therefore, the
+elements needs to be stored contiguously in memory. That's not the case for the
+linked list. Nodes need not be stored contiguously.
+Thus, when inserting an element in an array (not replacing one element by
+another), we need to move all elements at the left of the insertion to another
+memory address. Which means that the insertion worst case complexity is o(n)
+because if we insert an element at the first position, we need to move the
+entire array content.
+However, insertion in a linked list is much more efficient. We only need to
+change one node .next field. Thus, if the insertion is correctly coded, its
+worst case complexity is o(1).
+"""
+
+
+# Printing the nodes of a basic linked list.
+
+class Node:
+    def __init__(self, val, next=None):
+        self.val = val
+        self.next = next
+
+    def __str__(self):
+        return self.val
+
+    def __repr__(self):
+        return self.val
+
+
+a = Node("a")
+b = Node("b")
+c = Node("c")
+d = Node("d")
+
+a.next = b
+b.next = c
+c.next = d
+
+
+def print_linked_list(head):
+    current = head
+    while current is not None:
+        print(current)
+        current = current.next
+
+
+def print_linked_list_recursive(head):
+    current = head
+    if current is None:
+        return
+    print(current)
+    print_linked_list(current.next)
+
+
+def values_in_linked_list(head):
+    values = []
+    fill_values(head, values)
+    return values
+
+
+def fill_values(head, values):
+    current = head
+    if current is None:
+        return
+    values.append(current)
+    fill_values(current.next, values)
+
+
+r = values_in_linked_list(a)
+print(r)
