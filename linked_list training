@@ -1,0 +1,115 @@
+class Node:
+    def __init__(self, value, next=None):
+        self.value = value
+        self.next = next
+
+    def __str__(self):
+        return str(self.value)
+
+    def __repr__(self):
+        return self.__str__()
+
+
+# the linked list's 7 - 3 - 4 - 6
+A = Node(7)
+B = Node(3)
+C = Node(4)
+D = Node(6)
+A.next, B.next, C.next = B, C, D
+
+
+def recursive_linked_list_sum(node: Node) -> int:
+    if node is None:
+        return 0
+    next = recursive_linked_list_sum(node.next)
+    return next + node.value
+
+
+""" Bear in mind that for the next two solutions, the iterative solution is 
+more efficient than the recusive from a space complexity point of view. The
+iterative solution only stores one additional var o(1), while the recursive
+one needs to store the recursive o(N).
+"""
+
+
+def iterative_linked_list_find(head: Node, target_index: int, count=0) -> int:
+    """We need to return the value at the target index."""
+    current = head
+    while target_index != count:
+        if current is None:
+            raise IndexError("the index is not in the list")
+        current = current.next
+        count += 1
+    return current
+
+
+def recursive_linked_list_find(head: Node, target_index: int) -> int:
+    """We need to return the value at the target index using recursion."""
+    if head is None:
+        raise IndexError("the index is not in the list")
+    if target_index == 0:
+        return head.value
+    return recursive_linked_list_find(head.next, target_index-1)
+
+
+def iterative_reverse_linked_list(head: Node) -> tuple[Node, int]|str:
+    """We use a previous variable. Each iteration we assign current.next to
+    next, then assign prev to current.next then assign next to current. The
+    loop stops when current is None. We should also return the value."""
+    current = head
+    previous = None
+    while current is not None:
+        next = current.next
+        current.next = previous
+        previous = current
+        current = next
+        print(f"next:{next}, current:{current}, previous.next:{previous.next}, previous:{previous}")
+
+    if previous is not None:
+        return previous, previous.value
+    return "the node is empty"
+
+
+def recursive_reverse_linked_list(head: Node, previous: None | Node = None) -> Node:
+    """this solution won't work as expected if the linked list is of length 1."""
+    if head is None:
+        return previous
+    next = head.next
+    head.next = previous
+    return recursive_reverse_linked_list(next, head)
+
+
+a = Node("a")
+b = Node("b")
+c = Node("c")
+d = Node("d")
+e = Node("e")
+f = Node("f")
+a.next, b.next, c.next, d.next, e.next = b, c, d, e, f
+
+x = Node("x")
+y = Node("y")
+z = Node("z")
+x.next, y.next = y, z
+
+x_b = Node("x")
+y_b = Node("y")
+z_b = Node("z")
+z_c = Node("381è")
+z_d = Node("98Je")
+x_b.next, y_b.next, z_b.next, z_c.next = y_b, z_b, z_c, z_d
+
+
+def compare_two_linked_list(a: Node, b: Node) -> int:
+    """If both linked list contains the same node values in
+    the same order, return 1. Otherwise, return 0."""
+    current1 = a
+    current2 = b
+    while current1 is not None and current2 is not None:
+        if current2.val != current1.val:
+            return 0
+        current1 = current1.next
+        current2 = current2.next
+    if current1 is None and current2 is None:
+        return 1
+    return 0
