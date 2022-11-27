@@ -158,3 +158,98 @@ def painting(words:str) -> str:
     r += "".join(ch_upper_indexes_sorted.keys())
     
     return r 
+
+
+
+
+
+""""problem nr3 - JumpGame - work in progress"""""
+
+"""
+That's a fun one.
+1. State the problem clearly. Identify the inputs and outputs format.
+The input is a list of integers named nums. There can be no empty list. There can be as many as 10^4 integers.
+The output is a boolean.
+We need to return True if we can reach the last index. We start from the first index. Its value is the maximum jump we
+can do. In other words, we can move forward up to that value. If the maximum jump is 3, we can move forward 3, 2 or 1.
+2. Write some tests. Think of some edge cases.
+"""
+
+test1 = ([0, 0, 0, 0, 0], False)
+test2 = ([0], True)
+test3 = ([4], True)
+test4 = ([3, 2, 0, 1, 1], True)
+test5 = ([3, 2, 1, 0, 4], False)
+test6 = ([2, 3, 1, 1, 4], True)
+test7 = ([2, 0], True)
+test8 = ([2, 0, 0], True)
+tests = [test7, test6, test5, test4, test3, test2, test1]
+
+"""
+3. Think of some solution, state it in plain english.
+There are two ways we can end the loop. Either the counter is equal to the sum of numbers in nums (and we return False), either 
+we get to the end of nums (and we return True). Getting to the end of nums is the same as having a sum equal or
+superior to the length of nums minus one. The counter is increased at every new trial. 
+We need a dictionary. The keys are indexes in nums. The value is a list of used values of those indexes. There must never be more 
+than two lists in the dict whose last item is one.  
+At each trial we check in the dictionary if there's a key with last_updated_index. If there isn't, we create one and the value
+is a list with one item, the value of the last_updated_index. If there is a key with the last_updated_index, we check the last value in 
+its list. If the last value is 1, we add 1 to last_updated_index and create a new key value pair in the dict. If the last value is  not
+1, we add this last value - 1 at the end of the list and start a new trial with that value. 
+Now, when there's more than one key in the dictionary, we still need to start the trial at the first index. In other words, we need to 
+keep track during the trial of multiple values.  
+To make a trial, we get the value (v1) of the first index (i1), and add it to the value located at index v1. And so on until 
+the value we get to is zero OR the sum is equal or superior to the length of the list OR the counter is equal to the sum 
+of numbers inside the list. In the first case, we get back to the first index and start again. The important thing is that
+each time we select a value in the list we decrease it by one.    
+"""
+
+
+def brute_force_check_function(func: callable, tests: [tuple[list, bool]]) -> list[bool]:
+    results = []
+    for test in tests:
+        if func(test[0]) == test[1]:
+            results.append(True)
+        else:
+            results.append(False)
+    return results
+
+
+def brute_force(nums: list[int]) -> bool:
+    index_used_values: dict[int, list[int]] = {}
+    nr_of_trials = 0
+    max_nr_of_trials = sum(nums)
+    last_updated_index = 0
+    target = len(nums) - 1
+    while nr_of_trials <= max_nr_of_trials:
+        if last_updated_index not in index_used_values.keys():
+            index_used_values[last_updated_index] = [nums[last_updated_index]]
+        else:
+            last_used_value = index_used_values[last_updated_index][-1]
+            if last_used_value == 1:
+                last_updated_index = last_updated_index + 1
+                index_used_values[last_updated_index] = [nums[last_updated_index]]
+            elif last_used_value > 1:
+                index_used_values[last_updated_index].append(last_used_value - 1)
+        i = 0
+        jumps = 0
+        if target == jumps:  # for the special case where nums is [0]
+            return True
+        while True:
+            if i in range(len(nums)):
+                if nums[i] == 0:
+                    break
+            if jumps >= target:
+                return True
+            if i in index_used_values.keys():
+                value_to_use = index_used_values[i][-1]
+            else:
+                value_to_use = nums[i]
+            jumps += value_to_use
+            i += value_to_use
+        nr_of_trials += 1
+    return False
+
+
+result = brute_force_check_function(brute_force, tests)
+print(result)
